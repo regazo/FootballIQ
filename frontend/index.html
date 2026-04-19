@@ -1,8 +1,9 @@
-
+<!-- Zakarea Erezzaghi - 3074880 -->
 <!DOCTYPE html>
 <html>
 <head>
-<title>Football Pro</title>
+<title>FootballIQ</title>
+
 <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 
@@ -10,18 +11,21 @@
 body {
   margin:0;
   font-family:Arial;
-  background:linear-gradient(#070513,#1a1229);
+  background: linear-gradient(#070513,#1a1229);
   color:white;
 }
+
 .nav {
   display:flex;
   justify-content:space-between;
   padding:20px;
   background:#120d25;
 }
+
 .container {
   padding:20px;
 }
+
 .card {
   background:#1f1833;
   padding:20px;
@@ -30,19 +34,24 @@ body {
   box-shadow:0 0 15px rgba(0,0,0,0.5);
   transition:0.3s;
 }
+
 .card:hover {
-  transform:scale(1.02);
+  transform: scale(1.02);
 }
-.bar {
-  height:10px;
-  margin:5px 0;
-}
+
 button {
   padding:10px;
   margin-top:10px;
   border:none;
   border-radius:8px;
   cursor:pointer;
+}
+
+input {
+  padding:8px;
+  margin-right:10px;
+  border-radius:6px;
+  border:none;
 }
 </style>
 </head>
@@ -54,9 +63,12 @@ button {
 const e = React.createElement;
 
 function App(){
+
   const [matches,setMatches] = React.useState([]);
   const [selected,setSelected] = React.useState(null);
   const [prediction,setPrediction] = React.useState(null);
+  const [search,setSearch] = React.useState("");
+  const [dateFilter,setDateFilter] = React.useState("");
 
   React.useEffect(()=>{
     fetch("http://127.0.0.1:8000/matches")
@@ -74,53 +86,80 @@ function App(){
   }
 
   return e("div",null,
-    e("div",{className:"nav"}, e("h2",null,"⚽ Football Pro App")),
+
+    e("div",{className:"nav"},
+      e("h2",null,"⚽ FootballIQ")
+    ),
+
     e("div",{className:"container"},
-      matches.map(m =>
-        e("div",{className:"card",key:m.id},
-          e("h3",null,m.home + " vs " + m.away),
-          e("p",null,"📅 " + m.date + " | ⏰ " + m.time),
-          e("button",{onClick:()=>loadPrediction(m.id)},"View Prediction"),
 
-          selected === m.id && prediction && e("div", null,
+      // FILTER INPUTS
+      e("div",null,
 
-  e("p", null, "Home Win: " + prediction.home + "%"),
-  e("div", {
-    style: {
-      height: "10px",
-      width: prediction.home + "%",
-      background: "green",
-      marginBottom: "10px",
-      borderRadius: "5px"
-    }
-  }),
+        e("input",{
+          placeholder:"Search team...",
+          value:search,
+          onChange:e=>setSearch(e.target.value)
+        }),
 
-  e("p", null, "Draw: " + prediction.draw + "%"),
-  e("div", {
-    style: {
-      height: "10px",
-      width: prediction.draw + "%",
-      background: "orange",
-      marginBottom: "10px",
-      borderRadius: "5px"
-    }
-  }),
+        e("input",{
+          type:"date",
+          value:dateFilter,
+          onChange:e=>setDateFilter(e.target.value)
+        })
 
-  e("p", null, "Away Win: " + prediction.away + "%"),
-  e("div", {
-    style: {
-      height: "10px",
-      width: prediction.away + "%",
-      background: "red",
-      marginBottom: "10px",
-      borderRadius: "5px"
-    }
-  }),
+      ),
 
-  e("p", null, "Reason: " + prediction.reason)
-)
+      // MATCHES
+      matches
+        .filter(m =>
+          (m.home.toLowerCase().includes(search.toLowerCase()) ||
+           m.away.toLowerCase().includes(search.toLowerCase())) &&
+          (dateFilter === "" || m.date === dateFilter)
         )
-      )
+        .map(m =>
+          e("div",{className:"card",key:m.id},
+
+            e("h3",null,m.home + " vs " + m.away),
+            e("p",null,"📅 " + m.date),
+            e("p",null,"⏰ " + m.time),
+
+            e("button",{onClick:()=>loadPrediction(m.id)},"View Prediction"),
+
+            selected === m.id && prediction && e("div",null,
+
+              e("p",null,"Home Win: " + prediction.home + "%"),
+              e("div",{style:{
+                height:"10px",
+                width:prediction.home+"%",
+                background:"green",
+                borderRadius:"5px",
+                marginBottom:"10px"
+              }}),
+
+              e("p",null,"Draw: " + prediction.draw + "%"),
+              e("div",{style:{
+                height:"10px",
+                width:prediction.draw+"%",
+                background:"orange",
+                borderRadius:"5px",
+                marginBottom:"10px"
+              }}),
+
+              e("p",null,"Away Win: " + prediction.away + "%"),
+              e("div",{style:{
+                height:"10px",
+                width:prediction.away+"%",
+                background:"red",
+                borderRadius:"5px",
+                marginBottom:"10px"
+              }}),
+
+              e("p",null,"Reason: " + prediction.reason)
+            )
+
+          )
+        )
     )
   );
 }
