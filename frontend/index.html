@@ -82,15 +82,43 @@ function App(){
           e("p",null,"📅 " + m.date + " | ⏰ " + m.time),
           e("button",{onClick:()=>loadPrediction(m.id)},"View Prediction"),
 
-          selected === m.id && prediction && e("div",null,
-            e("p",null,"Home Win: " + prediction.home + "%"),
-            e("div",{className:"bar",style:{width:prediction.home + "%", background:"green"}}),
-            e("p",null,"Draw: " + prediction.draw + "%"),
-            e("div",{className:"bar",style:{width:prediction.draw + "%", background:"orange"}}),
-            e("p",null,"Away Win: " + prediction.away + "%"),
-            e("div",{className:"bar",style:{width:prediction.away + "%", background:"red"}}),
-            e("p",null,"💡 " + prediction.reason)
-          )
+          selected === m.id && prediction && e("div", null,
+
+  e("p", null, "Home Win: " + prediction.home + "%"),
+  e("div", {
+    style: {
+      height: "10px",
+      width: prediction.home + "%",
+      background: "green",
+      marginBottom: "10px",
+      borderRadius: "5px"
+    }
+  }),
+
+  e("p", null, "Draw: " + prediction.draw + "%"),
+  e("div", {
+    style: {
+      height: "10px",
+      width: prediction.draw + "%",
+      background: "orange",
+      marginBottom: "10px",
+      borderRadius: "5px"
+    }
+  }),
+
+  e("p", null, "Away Win: " + prediction.away + "%"),
+  e("div", {
+    style: {
+      height: "10px",
+      width: prediction.away + "%",
+      background: "red",
+      marginBottom: "10px",
+      borderRadius: "5px"
+    }
+  }),
+
+  e("p", null, "Reason: " + prediction.reason)
+)
         )
       )
     )
