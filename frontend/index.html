@@ -71,7 +71,7 @@ function App(){
   const [dateFilter,setDateFilter] = React.useState("");
 
   React.useEffect(()=>{
-    fetch("http://127.0.0.1:8000/matches")
+    fetch("http://127.0.0.1:8000/real-matches")
     .then(r=>r.json())
     .then(setMatches);
   },[]);
@@ -120,7 +120,17 @@ function App(){
         .map(m =>
           e("div",{className:"card",key:m.id},
 
-            e("h3",null,m.home + " vs " + m.away),
+            e("div",{style:{display:"flex",alignItems:"center",gap:"10px"}},
+
+  e("img",{src:m.homeLogo,style:{width:"30px"}}),
+  e("h3",null,m.home + " vs " + m.away),
+  e("img",{src:m.awayLogo,style:{width:"30px"}})
+
+),
+m.status === "LIVE" && e("p",{
+  style:{color:"red",fontWeight:"bold"}
+},"🔴 LIVE"),
+            e("p",null,"🏆 " + m.competition),
             e("p",null,"📅 " + m.date),
             e("p",null,"⏰ " + m.time),
 

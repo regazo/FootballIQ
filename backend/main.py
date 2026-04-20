@@ -29,3 +29,32 @@ def prediction(match_id:int):
         "away":30,
         "reason":"Better recent form and home advantage"
     }
+import requests
+
+@app.get("/real-matches")
+def get_real_matches():
+    url = "https://api.football-data.org/v4/matches?status=SCHEDULED"
+
+    headers = {
+        "X-Auth-Token": "2cb64b0370eb46b0b841929f95fd8e6a"
+    }
+
+    response = requests.get(url, headers=headers)
+    data = response.json()
+
+    matches = []
+
+    for m in data.get("matches", [])[:15]:
+        matches.append({
+            "id": m["id"],
+            "home": m["homeTeam"]["name"],
+            "away": m["awayTeam"]["name"],
+            "date": m["utcDate"][:10],
+            "time": m["utcDate"][11:16],
+            "competition": m["competition"]["name"],
+            "status": m["status"],
+            "homeLogo": m["homeTeam"].get("crest", ""),
+            "awayLogo": m["awayTeam"].get("crest", "")
+        })
+
+    return matches
