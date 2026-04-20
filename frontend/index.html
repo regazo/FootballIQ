@@ -33,6 +33,7 @@ body {
   border-radius:15px;
   box-shadow:0 0 15px rgba(0,0,0,0.5);
   transition:0.3s;
+  cursor:pointer;
 }
 
 .card:hover {
@@ -69,6 +70,7 @@ function App(){
   const [prediction,setPrediction] = React.useState(null);
   const [search,setSearch] = React.useState("");
   const [dateFilter,setDateFilter] = React.useState("");
+  const [activeMatch,setActiveMatch] = React.useState(null);
 
   React.useEffect(()=>{
     fetch("http://127.0.0.1:8000/real-matches")
@@ -93,7 +95,6 @@ function App(){
 
     e("div",{className:"container"},
 
-      // FILTER INPUTS
       e("div",null,
 
         e("input",{
@@ -110,7 +111,6 @@ function App(){
 
       ),
 
-      // MATCHES
       matches
         .filter(m =>
           (m.home.toLowerCase().includes(search.toLowerCase()) ||
@@ -118,58 +118,78 @@ function App(){
           (dateFilter === "" || m.date === dateFilter)
         )
         .map(m =>
-          e("div",{className:"card",key:m.id},
+          e("div",{className:"card",key:m.id,onClick:()=>setActiveMatch(m)},
 
             e("div",{style:{display:"flex",alignItems:"center",gap:"10px"}},
 
-  e("img",{src:m.homeLogo,style:{width:"30px"}}),
-  e("h3",null,m.home + " vs " + m.away),
-  e("img",{src:m.awayLogo,style:{width:"30px"}})
+              e("img",{src:m.homeLogo,style:{width:"30px"}}),
+              e("h3",null,m.home + " vs " + m.away),
+              e("img",{src:m.awayLogo,style:{width:"30px"}})
 
-),
-m.status === "LIVE" && e("p",{
-  style:{color:"red",fontWeight:"bold"}
-},"🔴 LIVE"),
+            ),
+
+            m.status === "LIVE" && e("p",{style:{color:"red",fontWeight:"bold"}},"🔴 LIVE"),
+
             e("p",null,"🏆 " + m.competition),
             e("p",null,"📅 " + m.date),
             e("p",null,"⏰ " + m.time),
 
-            e("button",{onClick:()=>loadPrediction(m.id)},"View Prediction"),
+            e("button",{onClick:(ev)=>{ev.stopPropagation();loadPrediction(m.id)}},"View Prediction"),
 
             selected === m.id && prediction && e("div",null,
 
               e("p",null,"Home Win: " + prediction.home + "%"),
-              e("div",{style:{
-                height:"10px",
-                width:prediction.home+"%",
-                background:"green",
-                borderRadius:"5px",
-                marginBottom:"10px"
-              }}),
+              e("div",{style:{height:"10px",width:prediction.home+"%",background:"green",borderRadius:"5px",marginBottom:"10px"}}),
 
               e("p",null,"Draw: " + prediction.draw + "%"),
-              e("div",{style:{
-                height:"10px",
-                width:prediction.draw+"%",
-                background:"orange",
-                borderRadius:"5px",
-                marginBottom:"10px"
-              }}),
+              e("div",{style:{height:"10px",width:prediction.draw+"%",background:"orange",borderRadius:"5px",marginBottom:"10px"}}),
 
               e("p",null,"Away Win: " + prediction.away + "%"),
-              e("div",{style:{
-                height:"10px",
-                width:prediction.away+"%",
-                background:"red",
-                borderRadius:"5px",
-                marginBottom:"10px"
-              }}),
+              e("div",{style:{height:"10px",width:prediction.away+"%",background:"red",borderRadius:"5px",marginBottom:"10px"}}),
 
               e("p",null,"Reason: " + prediction.reason)
             )
 
           )
         )
+    ),
+
+    activeMatch && e("div",{
+      style:{
+        position:"fixed",
+        top:0,
+        left:0,
+        width:"100%",
+        height:"100%",
+        background:"rgba(0,0,0,0.8)",
+        display:"flex",
+        justifyContent:"center",
+        alignItems:"center"
+      }
+    },
+
+      e("div",{
+        style:{
+          background:"#1f1833",
+          padding:"30px",
+          borderRadius:"15px",
+          width:"320px"
+        }
+      },
+
+        e("h2",null,activeMatch.home + " vs " + activeMatch.away),
+
+        e("div",{style:{display:"flex",justifyContent:"space-between"}},
+          e("img",{src:activeMatch.homeLogo,style:{width:"50px"}}),
+          e("img",{src:activeMatch.awayLogo,style:{width:"50px"}})
+        ),
+
+        e("p",null,"🏆 " + activeMatch.competition),
+        e("p",null,"📅 " + activeMatch.date),
+        e("p",null,"⏰ " + activeMatch.time),
+
+        e("button",{onClick:()=>setActiveMatch(null)},"Close")
+      )
     )
   );
 }
