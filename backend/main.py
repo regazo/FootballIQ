@@ -33,7 +33,40 @@ import requests
 
 @app.get("/real-matches")
 def get_real_matches():
-    url = "https://api.football-data.org/v4/matches?status=SCHEDULED"
+    competitions = ["PL","PD","BL1","SA","FL1"]
+
+    headers = {
+        "X-Auth-Token": "2cb64b0370eb46b0b841929f95fd8e6a"
+    }
+
+    matches = []
+
+    for comp in competitions:
+        url = f"https://api.football-data.org/v4/competitions/{comp}/matches"
+
+        response = requests.get(url, headers=headers)
+        data = response.json()
+
+        for m in data.get("matches", [])[:10]:
+            matches.append({
+                "id": m["id"],
+                "home": m["homeTeam"]["name"],
+                "away": m["awayTeam"]["name"],
+                "homeId": m["homeTeam"]["id"],
+                "awayId": m["awayTeam"]["id"],
+                "date": m["utcDate"][:10],
+                "time": m["utcDate"][11:16],
+                "competition": m["competition"]["name"],
+                "status": m["status"],
+                "homeLogo": m["homeTeam"].get("crest",""),
+                "awayLogo": m["awayTeam"].get("crest","")
+            })
+
+    return matches
+
+@app.get("/team-players/{team_id}")
+def get_players(team_id:int):
+    url = f"https://api.football-data.org/v4/teams/{team_id}"
 
     headers = {
         "X-Auth-Token": "2cb64b0370eb46b0b841929f95fd8e6a"
@@ -42,19 +75,13 @@ def get_real_matches():
     response = requests.get(url, headers=headers)
     data = response.json()
 
-    matches = []
+    players = []
 
-    for m in data.get("matches", [])[:15]:
-        matches.append({
-            "id": m["id"],
-            "home": m["homeTeam"]["name"],
-            "away": m["awayTeam"]["name"],
-            "date": m["utcDate"][:10],
-            "time": m["utcDate"][11:16],
-            "competition": m["competition"]["name"],
-            "status": m["status"],
-            "homeLogo": m["homeTeam"].get("crest", ""),
-            "awayLogo": m["awayTeam"].get("crest", "")
+    for p in data.get("squad", []):
+        players.append({
+            "name": p["name"],
+            "position": p.get("position","Unknown"),
+            "nationality": p.get("nationality","")
         })
 
-    return matches
+    return players
